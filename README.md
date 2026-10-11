@@ -36,6 +36,8 @@ Generated terrains are saved to `Assets/OpenHeightmap Generated`, outside the to
 Full documentation, covering every setting, preset and the API, is included with the tool:
 `Assets/OpenHeightmap/Documentation/Index.html` (open it in your browser).
 
+- [Read Online](https://deathwatchgaming.github.io/Unity-OpenHeightmap/Assets/OpenHeightmap/Documentation/Index.html)
+
 ## Previews
 
 See the [Previews](Previews) folder for a rendered image of every preset.
