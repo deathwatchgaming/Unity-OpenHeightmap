@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenHeightmap - Documentation</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --oh-primary: #1a7a3a;
+            --oh-dark: #0f1419;
+            --oh-surface: #1a1f25;
+            --oh-border: #2d3339;
+            --oh-text: #e4e6ea;
+            --oh-muted: #8b929a;
+            --oh-accent: #3fb950;
+            --oh-code: #161b22;
+            --bs-body-color: #e4e6ea;
+            --bs-body-color-rgb: 228, 230, 234;
+            --bs-body-bg: #0f1419;
+            --bs-secondary-color: #8b929a;
+            --bs-secondary-color-rgb: 139, 146, 154;
+            --bs-link-color: #3fb950;
+        }
+        body {
+            background-color: var(--oh-dark);
+            color: var(--oh-text);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.7;
+        }
+        .navbar { background-color: var(--oh-surface) !important; border-bottom: 1px solid var(--oh-border); }
+        .navbar-brand { font-weight: 700; letter-spacing: -0.5px; }
+        .badge-noise { background-color: #238636; }
+        .badge-erosion { background-color: #1f6feb; }
+        .badge-filter { background-color: #a371f7; }
+        .badge-splat { background-color: #da3633; }
+        .badge-preset { background-color: #d29922; color: #000; }
+        .card {
+            background-color: var(--oh-surface);
+            border: 1px solid var(--oh-border);
+            margin-bottom: 1.5rem;
+        }
+        .card-header { background-color: rgba(255,255,255,0.03); border-bottom: 1px solid var(--oh-border); }
+        pre {
+            background-color: var(--oh-code);
+            border: 1px solid var(--oh-border);
+            border-radius: 8px;
+            padding: 1rem;
+            overflow-x: auto;
+        }
+        code { color: var(--oh-accent); }
+        .hero { padding: 4rem 0 2rem; text-align: center; }
+        .hero h1 { font-size: 3rem; font-weight: 800; letter-spacing: -1px; }
+        .hero .lead { color: var(--oh-muted); font-size: 1.2rem; max-width: 600px; margin: 1rem auto; }
+        .section { padding: 3rem 0; }
+        .feature-icon { font-size: 2rem; margin-bottom: 1rem; color: var(--oh-accent); }
+        .toc-link { color: var(--oh-accent); text-decoration: none; }
+        .toc-link:hover { text-decoration: underline; color: var(--oh-text); }
+        .param-table td:first-child { font-family: monospace; color: var(--oh-accent); white-space: nowrap; }
+        h2 { border-bottom: 1px solid var(--oh-border); padding-bottom: 0.5rem; }
+        .pipeline-arrow { color: var(--oh-accent); font-size: 1.5rem; }
+        .sidebar { position: sticky; top: 80px; }
+        .sidebar .nav-link { color: var(--oh-muted); padding: 0.3rem 0; }
+        .sidebar .nav-link:hover, .sidebar .nav-link.active { color: var(--oh-text); }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+    <div class="container">
+        <a class="navbar-brand" href="#"><i class="bi bi-mountain"></i> OpenHeightmap</a>
+        <span class="navbar-text text-muted small">v1.0 &mdash; Unity 6 URP</span>
+    </div>
+</nav>
+
+<div class="container" style="padding-top: 70px;">
+
+    <!-- Hero -->
+    <div class="hero">
+        <h1>OpenHeightmap</h1>
+        <p class="lead">A modular, editor-integrated heightmap generation toolkit for Unity 6. Procedural noise, hydraulic erosion, splatmaps, and live preview &mdash; all in one window.</p>
+        <div class="mt-4">
+            <code>Tools &gt; OpenHeightmap &nbsp;(Ctrl+Alt+H)</code>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Sidebar TOC -->
+        <div class="col-lg-3 d-none d-lg-block">
+            <div class="sidebar">
+                <nav class="nav flex-column">
+                    <a class="nav-link" href="#quickstart">Quick Start</a>
+                    <a class="nav-link" href="#features">Features</a>
+                    <a class="nav-link" href="#pipeline">Processing Pipeline</a>
+                    <a class="nav-link" href="#noise">Noise Algorithms</a>
+                    <a class="nav-link" href="#erosion">Erosion</a>
+                    <a class="nav-link" href="#filters">Filters</a>
+                    <a class="nav-link" href="#splatmap">Splatmaps</a>
+                    <a class="nav-link" href="#presets">Presets</a>
+                    <a class="nav-link" href="#api">API Reference</a>
+                    <a class="nav-link" href="#structure">File Structure</a>
+                    <a class="nav-link" href="#companion" style="margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid var(--oh-border);">OpenStamper &rarr;</a>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-lg-9">
+
+            <!-- Quick Start -->
+            <section id="quickstart" class="section">
+                <h2><i class="bi bi-rocket"></i> Quick Start</h2>
+                <ol>
+                    <li>Open Unity 6 with URP.</li>
+                    <li>Copy the <code>Assets/OpenHeightmap</code> folder into your project.</li>
+                    <li>Go to <strong>Tools &gt; OpenHeightmap</strong> (or press <code>Ctrl+Alt+H</code>).</li>
+                    <li>Pick a preset from the <strong>Presets</strong> tab, or configure parameters manually.</li>
+                    <li>Click <strong>Generate</strong>. The heightmap appears in the live preview.</li>
+                    <li>Click <strong>Export</strong> to save it as PNG, RAW16, or EXR, or <strong>Apply to Terrain</strong> to write it to the active terrain in the scene.</li>
+                </ol>
+                <p class="text-muted small mb-0">If the scene has no terrain, <strong>Apply to Terrain</strong> offers to create one. Its size comes from <strong>New Terrain</strong> in the Noise tab: with <em>Match Size To Resolution</em> on, width and length follow the resolution (1025 &rarr; 1024 &times; 1024); turn it off to set them yourself. <em>Auto Height</em> (on by default) sets the height as a percentage of the width (<strong>Height (% of width)</strong>, 40% unless a preset sets its own) so new terrains have natural proportions; turn it off to type a height. If the scene already has a terrain, Apply to Terrain updates that one and keeps its size; the New Terrain section says so, and warns when heightmap samples would be more than 4 units apart (for example a 513 map stretched over 64,000 units), which makes terrain look soft and flat. Each new terrain gets its own <code>TerrainData</code> asset in <code>Assets/OpenHeightmap Generated</code>. Generated files are kept outside the tool folder, so updating or removing the tool never touches your terrains.</p>
+                <div class="alert alert-info mt-3" style="background-color: rgba(31,111,235,0.12); border-color: rgba(31,111,235,0.4);">
+                    <h6 class="mb-1 text-white"><i class="bi bi-info-circle"></i> Recommended Workflow</h6>
+                    <p class="mb-1 text-white">For best results, use <strong>RAW16</strong> format throughout the pipeline:</p>
+                    <p class="mb-0"><code>OpenHeightmap (generate) &rarr; Export RAW16 &rarr; OpenStamper (load .raw) &rarr; Apply stamps &rarr; Export RAW16 &rarr; Unity Terrain (Import Heightmap)</code></p>
+                    <p class="text-muted small mb-0 mt-1">RAW16 and PNG both store 16-bit height precision (65,536 levels); EXR stores full 32-bit floats. RAW16 is the format Unity's terrain <em>Import Raw</em> reads directly.</p>
+                </div>                
+            </section>
+
+            <!-- Features -->
+            <section id="features" class="section">
+                <h2><i class="bi bi-list-stars"></i> Features</h2>
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <div class="feature-icon"><i class="bi bi-layers"></i></div>
+                                <h5>6 Noise Algorithms</h5>
+                                <p class="text-muted mb-0">Perlin, Simplex, Voronoi, Worley, Value, Midpoint Displacement. Each with configurable parameters.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <div class="feature-icon"><i class="bi bi-water"></i></div>
+                                <h5>Hydraulic + Thermal Erosion</h5>
+                                <p class="text-muted mb-0">Full particle-based hydraulic simulation with sediment transport. Thermal erosion for slope rounding.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <div class="feature-icon"><i class="bi bi-eye"></i></div>
+                                <h5>Live Preview</h5>
+                                <p class="text-muted mb-0">Colored heightmap preview with zoom, click-to-read height, a grayscale toggle (<strong>Color</strong>), a custom <strong>Gradient</strong>, and optional GPU rendering. The preview is rendered once per change, so sliders stay responsive. <strong>Batch</strong> (Noise tab) generates several seeds at once as thumbnails; click one to use it. The current heightmap is rebuilt automatically after a script recompile.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <div class="feature-icon"><i class="bi bi-map"></i></div>
+                                <h5>Splatmap Generation</h5>
+                                <p class="text-muted mb-0">Auto-generate terrain layer weights from height + slope. Configurable biome rules with preview.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <div class="feature-icon"><i class="bi bi-film"></i></div>
+                                <h5>10 Terrain Presets</h5>
+                                <p class="text-muted mb-0">Rolling Hills, Mountain Range, Island, Canyon, Plateau, Desert, Tundra, Volcanic, River Valley, Coastal Cliffs.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <div class="feature-icon"><i class="bi bi-download"></i></div>
+                                <h5>PNG Export</h5>
+                                <p class="text-muted mb-0">Export as 16-bit grayscale PNG (no terracing). The texture importer is set to single-channel (red), linear, uncompressed.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Processing Pipeline -->
+            <section id="pipeline" class="section">
+                <h2><i class="bi bi-diagram-3"></i> Processing Pipeline</h2>
+                <p>Each generation run executes passes in strict order. Only enabled passes run.</p>
+                <div class="card">
+                    <div class="card-body text-center">
+                        <code class="me-2">Noise</code>
+                        <span class="pipeline-arrow">&rarr;</span>
+                        <code class="mx-2">Domain Warp</code>
+                        <span class="pipeline-arrow">&rarr;</span>
+                        <code class="mx-2">Hydraulic Erosion</code>
+                        <span class="pipeline-arrow">&rarr;</span>
+                        <code class="mx-2">Thermal Erosion</code>
+                        <span class="pipeline-arrow">&rarr;</span>
+                        <code class="mx-2">Gaussian Blur</code>
+                        <span class="pipeline-arrow">&rarr;</span>
+                        <code class="mx-2">Laplacian Smooth</code>
+                        <span class="pipeline-arrow">&rarr;</span>
+                        <code class="mx-2">Falloff</code>
+                        <span class="pipeline-arrow">&rarr;</span>
+                        <code class="mx-2">Normalize</code>
+                        <span class="pipeline-arrow">&rarr;</span>
+                        <code class="ms-2">Height Multiplier</code>
+                    </div>
+                </div>
+                <p class="text-muted mt-3 small">Normalization stretches the result to fill [0, 1]. <strong>Height Multiplier</strong> is applied after it: below 1 lowers the whole terrain, above 1 raises lowlands and slopes with a smooth curve that never flattens the peaks.</p>
+                <p class="text-muted small">Noise is sampled in a fixed reference space (512 units across the map), so the same settings give the same terrain at every resolution &mdash; a higher resolution adds detail instead of zooming out. <strong>Seed</strong> changes the terrain for every noise type.</p>
+            </section>
+
+            <!-- Noise Algorithms -->
+            <section id="noise" class="section">
+                <h2><i class="bi bi-snow"></i> Noise Algorithms</h2>
+
+                <div class="card">
+                    <div class="card-header"><span class="badge badge-noise">Noise</span> Perlin Noise</div>
+                    <div class="card-body">
+                        <p>Classic gradient noise. Produces smooth, organic undulations. Good general-purpose noise for rolling terrain. Uses improved Perlin permutation table with fade function <code>6t^5 - 15t^4 + 10t^3</code>.</p>
+                        <strong>Best for:</strong> Rolling hills, base terrain layers, large-scale features.
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header"><span class="badge badge-noise">Noise</span> Simplex Noise</div>
+                    <div class="card-body">
+                        <p>Gradient noise on a simplex grid instead of a square grid. Fewer directional artifacts than Perlin at high frequencies. Better performance in 2D+.</p>
+                        <strong>Best for:</strong> Organic terrain, mountain bases, anything Perlin does but with fewer grid-aligned artifacts.
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header"><span class="badge badge-noise">Noise</span> Voronoi (Worley) Noise</div>
+                    <div class="card-body">
+                        <p>Cell-based noise that computes distances to nearest feature points. Produces cell-like patterns.</p>
+                        <table class="table table-sm table-dark mt-2">
+                            <thead><tr><th>Return Type</th><th>Effect</th></tr></thead>
+                            <tbody>
+                                <tr><td>CellValue</td><td>Random value per cell (flat regions)</td></tr>
+                                <tr><td>Distance</td><td>Distance to nearest point (bowl shapes)</td></tr>
+                                <tr><td>Distance2</td><td>Distance difference between 1st and 2nd nearest (ridge lines, crater edges)</td></tr>
+                            </tbody>
+                        </table>
+                        <strong>Best for:</strong> Cratered terrain, cliff formations, volcanic landscapes.
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header"><span class="badge badge-noise">Noise</span> Worley Noise</div>
+                    <div class="card-body">
+                        <p>Variant of Voronoi with hash-based point placement (no floating point artifacts). Returns distance fields.</p>
+                        <table class="table table-sm table-dark mt-2">
+                            <thead><tr><th>Return Type</th><th>Effect</th></tr></thead>
+                            <tbody>
+                                <tr><td>F1</td><td>Distance to nearest point</td></tr>
+                                <tr><td>F2</td><td>Distance to second nearest</td></tr>
+                                <tr><td>F2-F1</td><td>Ridge/canyon patterns</td></tr>
+                                <tr><td>F1Normalized</td><td>Inverted distance (peaks at cell centers)</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header"><span class="badge badge-noise">Noise</span> Value Noise</div>
+                    <div class="card-body">
+                        <p>Random value at each grid vertex, interpolated with Hermite smoothing. Produces very smooth, predictable results. No gradient artifacts.</p>
+                        <strong>Best for:</strong> Smooth plains, gentle undulations, plateau surfaces.
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header"><span class="badge badge-noise">Noise</span> Midpoint Displacement</div>
+                    <div class="card-body">
+                        <p>Fractal subdivision: starts with 4 random corners, recursively subdivides with randomized midpoints. The <code>Roughness</code> parameter controls how much displacement decreases per subdivision level.</p>
+                        <strong>Best for:</strong> Mountain ridges, jagged fractal terrain, mountain ranges.
+                    </div>
+                </div>
+            </section>
+
+            <!-- Erosion -->
+            <section id="erosion" class="section">
+                <h2><i class="bi bi-water"></i> Erosion Simulation</h2>
+
+                <div class="card">
+                    <div class="card-header"><span class="badge badge-erosion">Erosion</span> Hydraulic Erosion</div>
+                    <div class="card-body">
+                        <p>Particle-based simulation. Each particle starts at a random position, flows downhill under gravity, picks up sediment (erosion) and deposits it when velocity decreases. Erosion is spread over a small brush so it carves channels rather than pits. This is the single most impactful pass for realism.</p>
+                        <table class="table table-sm table-dark mt-2">
+                            <thead><tr><th>Parameter</th><th>What It Does</th><th>Recommended Range</th></tr></thead>
+                            <tbody>
+                                <tr><td>Iterations</td><td>Erosion amount, in hundreds of droplets on a 513 map (200 = 20,000). The droplet count scales with map area so results look the same at any resolution.</td><td>100-500</td></tr>
+                                <tr><td>MaxLifetime</td><td>Max steps per particle before it dies</td><td>20-50</td></tr>
+                                <tr><td>Inertia</td><td>How much momentum carries vs. gravity direction. Higher = smoother channels</td><td>0.01-0.1</td></tr>
+                                <tr><td>Gravity</td><td>Acceleration downhill. Higher = deeper channels</td><td>2-10</td></tr>
+                                <tr><td>EvaporationRate</td><td>Water loss per step. Higher = shorter rivers</td><td>0.01-0.05</td></tr>
+                                <tr><td>DepositionRate</td><td>How fast sediment drops when velocity slows</td><td>0.1-0.5</td></tr>
+                                <tr><td>ErosionRate</td><td>How fast terrain is carved under particles</td><td>0.1-0.5</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header"><span class="badge badge-erosion">Erosion</span> Thermal Erosion</div>
+                    <div class="card-body">
+                        <p>Slope-based material displacement. Material slides downhill when the slope exceeds the <code>TalusAngle</code> threshold. Produces natural rounding of peaks and filling of valleys.</p>
+                        <table class="table table-sm table-dark mt-2">
+                            <thead><tr><th>Parameter</th><th>What It Does</th></tr></thead>
+                            <tbody>
+                                <tr><td>Iterations</td><td>Number of passes (10-30 typical)</td></tr>
+                                <tr><td>TalusAngle</td><td>Slope threshold before material moves (0.005-0.02). Measured per 513-map pixel, so it behaves the same at every resolution.</td></tr>
+                                <tr><td>C</td><td>Material transfer constant (1.0 = standard)</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Filters -->
+            <section id="filters" class="section">
+                <h2><i class="bi bi-funnel"></i> Filters</h2>
+
+                <div class="card">
+                    <div class="card-header"><span class="badge badge-filter">Filter</span> Gaussian Blur</div>
+                    <div class="card-body">
+                        <p>Convolution-based blur using a Gaussian kernel. <code>KernelSize</code> must be odd (auto-corrected). <code>Sigma</code> controls blur spread. Multiple passes compound the effect.</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header"><span class="badge badge-filter">Filter</span> Laplacian Smoothing</div>
+                    <div class="card-body">
+                        <p>Each vertex moves toward the average of its 4 neighbors by <code>Strength</code> factor. Good for removing high-frequency noise without losing large-scale shape.</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header"><span class="badge badge-filter">Filter</span> Falloff Mask</div>
+                    <div class="card-body">
+                        <p>Multiplicative mask that darkens edges. Essential for island generation.</p>
+                        <table class="table table-sm table-dark mt-2">
+                            <thead><tr><th>Type</th><th>Shape</th></tr></thead>
+                            <tbody>
+                                <tr><td>Circular</td><td>Radial falloff from center (standard island)</td></tr>
+                                <tr><td>Square</td><td>Box falloff (flat center, sharp edges)</td></tr>
+                                <tr><td>Diamond</td><td>Manhattan distance falloff</td></tr>
+                                <tr><td>Gaussian</td><td>Smooth bell-curve falloff (most natural)</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="mt-2"><strong>Power</strong> &mdash; curves the falloff. Higher = steeper drop at edges.<br>
+                        <strong>Offset</strong> &mdash; shifts where the falloff begins. Higher = more flat center area.</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header"><span class="badge badge-filter">Filter</span> Domain Warping</div>
+                    <div class="card-body">
+                        <p>Pushes the terrain around using a second, seeded noise field. Breaks up regularity and produces organic, non-repeating geological formations. Applied before erosion. <strong>Strength</strong> is the maximum shift as a fraction of the map width (0.02 &asymp; 2%); <strong>Frequency</strong> uses the same units as the noise Scale.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Splatmap -->
+            <section id="splatmap" class="section">
+                <h2><i class="bi bi-map"></i> Splatmaps</h2>
+                <p>Auto-generate terrain layer weights from height and slope. Each biome rule defines a height range and a maximum slope in real degrees (worked out from the terrain's height-to-width ratio: the active terrain's, or the New Terrain size). Weights are smooth-stepped for natural blending. Where a spot is too steep for every rule at its height, the height match is kept rather than falling back to the first layer.</p>
+                <p><strong>Height Weight</strong> sets how sharply height bands separate (0 = height ignored). <strong>Slope Weight</strong> sets how strictly Max Slope is enforced (0 = slope ignored, 1 = a layer fades out over 10&deg; past its Max Slope).</p>
+                <table class="table table-sm table-dark">
+                    <thead><tr><th>Layer</th><th>Default Height</th><th>Max Slope</th><th>Color</th></tr></thead>
+                    <tbody>
+                        <tr><td>Water</td><td>0 &ndash; 15%</td><td>90&deg;</td><td><span style="color:#3366cc;">&#9608;</span> Blue</td></tr>
+                        <tr><td>Sand</td><td>15 &ndash; 25%</td><td>20&deg;</td><td><span style="color:#d9cc80;">&#9608;</span> Tan</td></tr>
+                        <tr><td>Grass</td><td>25 &ndash; 55%</td><td>30&deg;</td><td><span style="color:#4db333;">&#9608;</span> Green</td></tr>
+                        <tr><td>Rock</td><td>55 &ndash; 80%</td><td>60&deg;</td><td><span style="color:#8c7366;">&#9608;</span> Brown</td></tr>
+                        <tr><td>Snow</td><td>80 &ndash; 100%</td><td>90&deg;</td><td><span style="color:#f2f2f7;">&#9608;</span> White</td></tr>
+                    </tbody>
+                </table>
+                <p class="text-muted small mt-2">Click <strong>Generate Splatmap</strong> in the Splatmap tab to see a color-coded preview (toggle <strong>Splat</strong> in the toolbar to switch back to the heightmap). Generating a new heightmap clears the splatmap. <strong>Apply to Terrain</strong> writes it too: it is resampled to a power-of-two alphamap (513 &rarr; 512), the terrain's existing layers are kept, and any missing layers are created as solid-colour <code>TerrainLayer</code> assets in <code>Assets/OpenHeightmap Generated/TerrainLayers</code> (reused on later applies).</p>
+            </section>
+
+            <!-- Presets -->
+            <section id="presets" class="section">
+                <h2><i class="bi bi-collection"></i> Presets</h2>
+                <p>Each preset keeps your current Resolution and Seed, and sets the New Terrain <strong>Height (% of width)</strong> to a value that suits it, so gentle presets don't come out mountainous. You can change that slider afterwards. Presets also set the <strong>Splatmap</strong> rules: Canyon, Plateau, Desert Dunes, Tundra and Volcanic bring their own layers and colors (red rock, sand, moss, ash and so on), and the rest use the default water, sand, grass, rock and snow layers. Edit the rules freely afterwards; <em>Reset to Defaults</em> in the Splatmap tab goes back to the default layers.</p>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body py-3">
+                                <h6 class="mb-1">Rolling Hills</h6>
+                                <small class="text-muted">Perlin, 4 octaves, light thermal erosion and smoothing. Broad, gentle hills. Suggested height: 8% of width.</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body py-3">
+                                <h6 class="mb-1">Mountain Range</h6>
+                                <small class="text-muted">Simplex, 8 octaves, hydraulic + thermal erosion, warped ridgelines. Large eroded mountain masses. Suggested height: 30% of width.</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body py-3">
+                                <h6 class="mb-1">Island</h6>
+                                <small class="text-muted">Perlin + circular falloff, hydraulic + thermal erosion. A single island with beaches and a mountainous centre. Suggested height: 15% of width.</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body py-3">
+                                <h6 class="mb-1">Canyon</h6>
+                                <small class="text-muted">Voronoi cell edges as gorges, high Height Multiplier for flat mesa tops, strong warping and erosion. Mesas cut by winding gorges. Splatmap: gorge sand, red rock, sandstone tops. Suggested height: 12% of width.</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body py-3">
+                                <h6 class="mb-1">Plateau</h6>
+                                <small class="text-muted">Value noise, raised with Height Multiplier, heavy blur and smoothing. A flat tableland with escarpments. Splatmap: lowland grass, rock escarpments, upland grass. Suggested height: 12% of width.</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body py-3">
+                                <h6 class="mb-1">Desert Dunes</h6>
+                                <small class="text-muted">Simplex, few octaves, warped and heavily blurred. Low, smooth, wind-shaped undulations. Splatmap: three shades of sand. Suggested height: 5% of width.</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body py-3">
+                                <h6 class="mb-1">Tundra</h6>
+                                <small class="text-muted">Perlin, low height, thermal erosion and blur. Flat cold lowland with shallow lakes. Splatmap: water, gravel, tundra moss, snow. Suggested height: 6% of width.</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body py-3">
+                                <h6 class="mb-1">Volcanic</h6>
+                                <small class="text-muted">Worley F1Normalized at a low scale, erosion and slight warping. A few large volcanic cones. Splatmap: water, ash, scrub, basalt, snow. Suggested height: 25% of width.</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body py-3">
+                                <h6 class="mb-1">River Valley</h6>
+                                <small class="text-muted">Voronoi cell edges as valley floors, warped to meander, heavy erosion and blur. Rounded hills between winding river valleys. Suggested height: 12% of width.</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body py-3">
+                                <h6 class="mb-1">Coastal Cliffs</h6>
+                                <small class="text-muted">Simplex + strong offset circular falloff, erosion. A landmass that drops steeply into the sea. Suggested height: 12% of width.</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- API Reference -->
+            <section id="api" class="section">
+                <h2><i class="bi bi-code-slash"></i> API Reference</h2>
+
+                <div class="card">
+                    <div class="card-header"><code>INoiseProvider</code></div>
+                    <div class="card-body">
+                        <pre><code>public interface INoiseProvider
+{
+    string Name { get; }
+    float Sample(float x, float y, int seed = 0);
+}</code></pre>
+                        <p>All noise algorithms implement this interface. Returns value in <code>[-1, 1]</code> range (except MidpointDisplacement which returns <code>[0, 1]</code>).</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header"><code>HeightmapGenerator</code></div>
+                    <div class="card-body">
+                        <pre><code>var generator = new HeightmapGenerator();
+var parameters = new HeightmapGeneratorParameters { ... };
+HeightmapData result = generator.Generate(parameters);</code></pre>
+                        <p>Main entry point. Orchestrates the full pipeline from noise to normalized output. Set <code>generator.Progress = (stage, progress) =&gt; { ... }</code> to receive progress updates.</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header"><code>HeightmapData</code></div>
+                    <div class="card-body">
+                        <pre><code>HeightmapData hm = new HeightmapData(513);
+float h = hm.GetHeight(x, y);
+float hBilinear = hm.GetHeightBilinear(u, v); // 0-1 UV coordinates
+float[] flat = hm.ToFlatArray();
+HeightmapData clone = hm.Clone();</code></pre>
+                        <p>Core data wrapper. Use <code>GetHeightBilinear</code> for smooth UV-based sampling.</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header"><code>HeightmapExporter</code></div>
+                    <div class="card-body">
+                        <pre><code>HeightmapExporter.Export(heightmap, "/path/to/output.png", ExportFormat.PNG);
+HeightmapExporter.Export(heightmap, "/path/to/output.raw", ExportFormat.RAW16);</code></pre>
+                        <p>Writes PNG (16-bit grayscale), RAW16 or EXR. Paths normally come from a save dialog, which already asks before overwriting; pass <code>confirmOverwrite: true</code> to ask again. Auto-configures the texture importer when saving inside the project.</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header"><code>TerrainApplier</code></div>
+                    <div class="card-body">
+                        <pre><code>string status = TerrainApplier.Apply(heightmap, new NewTerrainSettings(), "Assets/MyTerrains", "My Terrain");</code></pre>
+                        <p>Writes a heightmap (and optional splatmap) to the active terrain, or creates a new one. Used by both OpenHeightmap and OpenStamper. Call it outside <code>OnGUI</code> (for example from <code>EditorApplication.delayCall</code>) because it can show dialogs.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- File Structure -->
+            <section id="structure" class="section">
+                <h2><i class="bi bi-folder2"></i> File Structure</h2>
+<pre><code>Assets/OpenHeightmap/
+├── Documentation/
+│   └── Index.html              &larr; this file
+├── Editor/
+│   ├── OpenHeightmapWindow.cs  Main EditorWindow (6 tabs + preview)
+│   ├── PreviewRenderer.cs      CPU / GPU preview (rendered once per change)
+│   ├── HeightmapExporter.cs    PNG / RAW16 / EXR export
+│   ├── TerrainApplier.cs       Apply to Terrain (shared with OpenStamper)
+│   ├── OpenHeightmap.Editor.asmdef
+│   └── Presets/
+│       └── TerrainPresets.cs   10 terrain presets
+├── Runtime/
+│   ├── HeightmapData.cs        Core float[,] wrapper
+│   ├── HeightmapGenerator.cs   Pipeline orchestrator
+│   ├── OpenHeightmap.Runtime.asmdef
+│   ├── Noise/
+│   │   ├── INoiseProvider.cs   Interface
+│   │   ├── PerlinNoise.cs
+│   │   ├── SimplexNoise.cs
+│   │   ├── VoronoiNoise.cs
+│   │   ├── WorleyNoise.cs
+│   │   ├── ValueNoise.cs
+│   │   └── MidpointDisplacement.cs
+│   ├── Erosion/
+│   │   ├── HydraulicErosion.cs
+│   │   └── ThermalErosion.cs
+│   ├── Filters/
+│   │   ├── GaussianBlur.cs
+│   │   ├── LaplacianSmooth.cs
+│   │   ├── FalloffGenerator.cs
+│   │   └── DomainWarping.cs
+│   ├── Sampling/
+│   │   ├── PoissonDiskSampler.cs
+│   │   └── CellularAutomata.cs
+│   └── Splat/
+│       └── SplatmapGenerator.cs
+└── Shaders/
+    ├── PreviewCompute.compute  GPU heightmap-to-color
+    └── PreviewShader.shader    URP preview material
+</code></pre>
+            </section>
+
+            <!-- Companion Tool -->
+            <section id="companion" class="section">
+                <h2><i class="bi bi-grid-3x3-gap"></i> Companion Tool: OpenStamper</h2>
+                <div class="card">
+                    <div class="card-body">
+                        <p>OpenHeightmap has a companion tool called <strong>OpenStamper</strong> for stamp-based terrain compositing. OpenStamper lets you layer procedural features (craters, mountains, ridges, rivers, etc.) onto existing heightmaps using 8 blend modes.</p>
+                        <p class="mb-2"><strong>OpenStamper depends on OpenHeightmap</strong> &mdash; it uses <code>HeightmapData</code>, <code>HeightmapExporter</code>, and <code>ExportFormat</code> at both runtime and editor level. Install this asset first before adding OpenStamper.</p>
+                        <p class="mb-1"><strong>Recommended pipeline:</strong> Generate in OpenHeightmap &rarr; Export RAW16 &rarr; Load into OpenStamper &rarr; Stamp &rarr; Export RAW16 &rarr; Import to Unity Terrain.</p>
+                        <p class="mb-0">Open via <strong>Tools &gt; OpenStamper</strong> (<code>Ctrl+Alt+S</code>).</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Footer -->
+            <hr style="border-color: var(--oh-border);">
+            <footer class="text-muted text-center py-4 small">
+                OpenHeightmap v1.0 &mdash; Unity 6 URP &mdash; Built for procedural terrain generation
+            </footer>
+
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Smooth scroll for TOC links
+    document.querySelectorAll('.toc-link, .sidebar .nav-link').forEach(link => {
+        link.addEventListener('click', function(e) {
+            const href = this.getAttribute('href');
+            if (href && href.startsWith('#')) {
+                e.preventDefault();
+                const target = document.querySelector(href);
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }
+        });
+    });
+</script>
+
+</body>
+</html>

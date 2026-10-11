@@ -1,0 +1,60 @@
+/*
+ * Asset: OpenHeightmap
+ * Filename: PreviewCompute.compute
+ * Asset Version: 1.0
+ * Unity Version: Unity 6+ (URP)
+ * Author: DeathwatchGaming
+ * License: MIT
+ */
+
+// PreviewCompute.compute
+// GPU-accelerated noise generation and heightmap preview
+
+#pragma kernel CSMain
+#pragma kernel CSGeneratePreview
+
+Texture2D<float4> _Heightmap;
+RWTexture2D<float4> _Preview;
+int _Resolution;
+float _MinHeight;
+float _MaxHeight;
+
+// Height-to-color gradient for preview
+float3 HeightToColor(float h)
+{
+    // Deep water
+    if (h < 0.1) return lerp(float3(0.0, 0.0, 0.3), float3(0.0, 0.1, 0.5), h / 0.1);
+    // Shallow water
+    if (h < 0.2) return lerp(float3(0.0, 0.1, 0.5), float3(0.1, 0.4, 0.7), (h - 0.1) / 0.1);
+    // Sand
+    if (h < 0.3) return lerp(float3(0.76, 0.70, 0.50), float3(0.60, 0.65, 0.35), (h - 0.2) / 0.1);
+    // Grass
+    if (h < 0.5) return lerp(float3(0.20, 0.55, 0.15), float3(0.15, 0.40, 0.10), (h - 0.3) / 0.2);
+    // Rock
+    if (h < 0.7) return lerp(float3(0.45, 0.40, 0.35), float3(0.55, 0.50, 0.45), (h - 0.5) / 0.2);
+    // Mountain
+    if (h < 0.85) return lerp(float3(0.55, 0.50, 0.45), float3(0.65, 0.62, 0.60), (h - 0.7) / 0.15);
+    // Snow
+    return lerp(float3(0.65, 0.62, 0.60), float3(0.95, 0.95, 0.97), (h - 0.85) / 0.15);
+}
+
+[numthreads(8, 8, 1)]
+void CSMain(uint3 id : SV_DispatchThreadID)
+{
+    if (id.x >= (uint)_Resolution || id.y >= (uint)_Resolution) return;
+
+    float h = _Heightmap[id.xy].r;
+    float normalizedH = saturate((h - _MinHeight) / max(_MaxHeight - _MinHeight, 0.0001));
+
+    float3 color = HeightToColor(normalizedH);
+    _Preview[id.xy] = float4(color, 1.0);
+}
+
+[numthreads(8, 8, 1)]
+void CSGeneratePreview(uint3 id : SV_DispatchThreadID)
+{
+    if (id.x >= (uint)_Resolution || id.y >= (uint)_Resolution) return;
+
+    float h = _Heightmap[id.xy].r;
+    _Preview[id.xy] = float4(h, h, h, 1.0);
+}
