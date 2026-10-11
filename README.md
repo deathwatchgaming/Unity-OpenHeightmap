@@ -40,7 +40,7 @@ Full documentation, covering every setting, preset and the API, is included with
 
 ## Previews
 
-See the [Previews](Previews) folder for a rendered image of every preset.
+See the [Previews](https://github.com/deathwatchgaming/Unity-OpenHeightmap/tree/main/Previews) folder for a rendered image of every preset.
 
 ## Companion Tool
 
