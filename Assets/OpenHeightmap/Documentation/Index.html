@@ -1,13 +1,35 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-bs-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OpenHeightmap - Documentation</title>
+    <script>
+        // Pick the theme before the page draws so it never flashes the wrong colours.
+        // A saved choice wins; otherwise follow the system light/dark setting.
+        (function () {
+            var theme = null;
+
+            try {
+                theme = localStorage.getItem('openToolsDocsTheme');
+            } catch (e) {
+                theme = null;
+            }
+
+            if (theme !== 'light' && theme !== 'dark') {
+                var prefersLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+                theme = prefersLight ? 'light' : 'dark';
+            }
+
+            document.documentElement.setAttribute('data-bs-theme', theme);
+        })();
+    </script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <style>
-        :root {
+        /* Dark theme (default) */
+        :root,
+        [data-bs-theme="dark"] {
             --oh-primary: #1a7a3a;
             --oh-dark: #0f1419;
             --oh-surface: #1a1f25;
@@ -22,6 +44,32 @@
             --bs-secondary-color: #8b929a;
             --bs-secondary-color-rgb: 139, 146, 154;
             --bs-link-color: #3fb950;
+            --oh-header: rgba(255, 255, 255, 0.03);
+            --oh-table: #212529;
+            --bs-border-color: #2d3339;
+            --bs-emphasis-color: #ffffff;
+        }
+
+        /* Light theme */
+        [data-bs-theme="light"] {
+            --oh-primary: #1a7a3a;
+            --oh-dark: #f6f8fa;
+            --oh-surface: #ffffff;
+            --oh-border: #d0d7de;
+            --oh-text: #1f2328;
+            --oh-muted: #59636e;
+            --oh-accent: #1a7f37;
+            --oh-code: #f6f8fa;
+            --oh-header: rgba(0, 0, 0, 0.03);
+            --oh-table: #f6f8fa;
+            --bs-body-color: #1f2328;
+            --bs-body-color-rgb: 31, 35, 40;
+            --bs-body-bg: #f6f8fa;
+            --bs-secondary-color: #59636e;
+            --bs-secondary-color-rgb: 89, 99, 110;
+            --bs-link-color: #1a7f37;
+            --bs-border-color: #d0d7de;
+            --bs-emphasis-color: #000000;
         }
         body {
             background-color: var(--oh-dark);
@@ -41,7 +89,7 @@
             border: 1px solid var(--oh-border);
             margin-bottom: 1.5rem;
         }
-        .card-header { background-color: rgba(255,255,255,0.03); border-bottom: 1px solid var(--oh-border); }
+        .card-header { background-color: var(--oh-header); border-bottom: 1px solid var(--oh-border); }
         pre {
             background-color: var(--oh-code);
             border: 1px solid var(--oh-border);
@@ -63,14 +111,36 @@
         .sidebar { position: sticky; top: 80px; }
         .sidebar .nav-link { color: var(--oh-muted); padding: 0.3rem 0; }
         .sidebar .nav-link:hover, .sidebar .nav-link.active { color: var(--oh-text); }
+        .table {
+            --bs-table-bg: var(--oh-table);
+            --bs-table-color: var(--oh-text);
+            --bs-table-border-color: var(--oh-border);
+        }
+        .workflow-callout {
+            background-color: rgba(31, 111, 235, 0.12);
+            border-color: rgba(31, 111, 235, 0.4);
+            color: var(--oh-text);
+        }
+        .swatch { text-shadow: 0 0 1px var(--oh-muted); }
+        .theme-toggle {
+            color: var(--oh-muted);
+            border: 1px solid var(--oh-border);
+            line-height: 1;
+        }
+        .theme-toggle:hover, .theme-toggle:focus { color: var(--oh-text); border-color: var(--oh-muted); }
     </style>
 </head>
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+<nav class="navbar navbar-expand-lg fixed-top">
     <div class="container">
         <a class="navbar-brand" href="#"><i class="bi bi-mountain"></i> OpenHeightmap</a>
-        <span class="navbar-text text-muted small">v1.0 &mdash; Unity 6 URP</span>
+        <div class="d-flex align-items-center gap-3">
+            <span class="navbar-text text-muted small">v1.0 &mdash; Unity 6 URP</span>
+            <button type="button" class="btn btn-sm theme-toggle" id="themeToggle" title="Switch light / dark theme" aria-label="Switch light / dark theme">
+                <i class="bi bi-sun"></i>
+            </button>
+        </div>
     </div>
 </nav>
 
@@ -120,9 +190,9 @@
                     <li>Click <strong>Export</strong> to save it as PNG, RAW16, or EXR, or <strong>Apply to Terrain</strong> to write it to the active terrain in the scene.</li>
                 </ol>
                 <p class="text-muted small mb-0">If the scene has no terrain, <strong>Apply to Terrain</strong> offers to create one. Its size comes from <strong>New Terrain</strong> in the Noise tab: with <em>Match Size To Resolution</em> on, width and length follow the resolution (1025 &rarr; 1024 &times; 1024); turn it off to set them yourself. <em>Auto Height</em> (on by default) sets the height as a percentage of the width (<strong>Height (% of width)</strong>, 40% unless a preset sets its own) so new terrains have natural proportions; turn it off to type a height. If the scene already has a terrain, Apply to Terrain updates that one and keeps its size; the New Terrain section says so, and warns when heightmap samples would be more than 4 units apart (for example a 513 map stretched over 64,000 units), which makes terrain look soft and flat. Each new terrain gets its own <code>TerrainData</code> asset in <code>Assets/OpenHeightmap Generated</code>. Generated files are kept outside the tool folder, so updating or removing the tool never touches your terrains.</p>
-                <div class="alert alert-info mt-3" style="background-color: rgba(31,111,235,0.12); border-color: rgba(31,111,235,0.4);">
-                    <h6 class="mb-1 text-white"><i class="bi bi-info-circle"></i> Recommended Workflow</h6>
-                    <p class="mb-1 text-white">For best results, use <strong>RAW16</strong> format throughout the pipeline:</p>
+                <div class="alert alert-info workflow-callout mt-3">
+                    <h6 class="mb-1"><i class="bi bi-info-circle"></i> Recommended Workflow</h6>
+                    <p class="mb-1">For best results, use <strong>RAW16</strong> format throughout the pipeline:</p>
                     <p class="mb-0"><code>OpenHeightmap (generate) &rarr; Export RAW16 &rarr; OpenStamper (load .raw) &rarr; Apply stamps &rarr; Export RAW16 &rarr; Unity Terrain (Import Heightmap)</code></p>
                     <p class="text-muted small mb-0 mt-1">RAW16 and PNG both store 16-bit height precision (65,536 levels); EXR stores full 32-bit floats. RAW16 is the format Unity's terrain <em>Import Raw</em> reads directly.</p>
                 </div>                
@@ -242,7 +312,7 @@
                     <div class="card-header"><span class="badge badge-noise">Noise</span> Voronoi (Worley) Noise</div>
                     <div class="card-body">
                         <p>Cell-based noise that computes distances to nearest feature points. Produces cell-like patterns.</p>
-                        <table class="table table-sm table-dark mt-2">
+                        <table class="table table-sm mt-2">
                             <thead><tr><th>Return Type</th><th>Effect</th></tr></thead>
                             <tbody>
                                 <tr><td>CellValue</td><td>Random value per cell (flat regions)</td></tr>
@@ -258,7 +328,7 @@
                     <div class="card-header"><span class="badge badge-noise">Noise</span> Worley Noise</div>
                     <div class="card-body">
                         <p>Variant of Voronoi with hash-based point placement (no floating point artifacts). Returns distance fields.</p>
-                        <table class="table table-sm table-dark mt-2">
+                        <table class="table table-sm mt-2">
                             <thead><tr><th>Return Type</th><th>Effect</th></tr></thead>
                             <tbody>
                                 <tr><td>F1</td><td>Distance to nearest point</td></tr>
@@ -295,7 +365,7 @@
                     <div class="card-header"><span class="badge badge-erosion">Erosion</span> Hydraulic Erosion</div>
                     <div class="card-body">
                         <p>Particle-based simulation. Each particle starts at a random position, flows downhill under gravity, picks up sediment (erosion) and deposits it when velocity decreases. Erosion is spread over a small brush so it carves channels rather than pits. This is the single most impactful pass for realism.</p>
-                        <table class="table table-sm table-dark mt-2">
+                        <table class="table table-sm mt-2">
                             <thead><tr><th>Parameter</th><th>What It Does</th><th>Recommended Range</th></tr></thead>
                             <tbody>
                                 <tr><td>Iterations</td><td>Erosion amount, in hundreds of droplets on a 513 map (200 = 20,000). The droplet count scales with map area so results look the same at any resolution.</td><td>100-500</td></tr>
@@ -314,7 +384,7 @@
                     <div class="card-header"><span class="badge badge-erosion">Erosion</span> Thermal Erosion</div>
                     <div class="card-body">
                         <p>Slope-based material displacement. Material slides downhill when the slope exceeds the <code>TalusAngle</code> threshold. Produces natural rounding of peaks and filling of valleys.</p>
-                        <table class="table table-sm table-dark mt-2">
+                        <table class="table table-sm mt-2">
                             <thead><tr><th>Parameter</th><th>What It Does</th></tr></thead>
                             <tbody>
                                 <tr><td>Iterations</td><td>Number of passes (10-30 typical)</td></tr>
@@ -348,7 +418,7 @@
                     <div class="card-header"><span class="badge badge-filter">Filter</span> Falloff Mask</div>
                     <div class="card-body">
                         <p>Multiplicative mask that darkens edges. Essential for island generation.</p>
-                        <table class="table table-sm table-dark mt-2">
+                        <table class="table table-sm mt-2">
                             <thead><tr><th>Type</th><th>Shape</th></tr></thead>
                             <tbody>
                                 <tr><td>Circular</td><td>Radial falloff from center (standard island)</td></tr>
@@ -375,17 +445,17 @@
                 <h2><i class="bi bi-map"></i> Splatmaps</h2>
                 <p>Auto-generate terrain layer weights from height and slope. Each biome rule defines a height range and a maximum slope in real degrees (worked out from the terrain's height-to-width ratio: the active terrain's, or the New Terrain size). Weights are smooth-stepped for natural blending. Where a spot is too steep for every rule at its height, the height match is kept rather than falling back to the first layer.</p>
                 <p><strong>Height Weight</strong> sets how sharply height bands separate (0 = height ignored). <strong>Slope Weight</strong> sets how strictly Max Slope is enforced (0 = slope ignored, 1 = a layer fades out over 10&deg; past its Max Slope).</p>
-                <table class="table table-sm table-dark">
+                <table class="table table-sm">
                     <thead><tr><th>Layer</th><th>Default Height</th><th>Max Slope</th><th>Color</th></tr></thead>
                     <tbody>
-                        <tr><td>Water</td><td>0 &ndash; 15%</td><td>90&deg;</td><td><span style="color:#3366cc;">&#9608;</span> Blue</td></tr>
-                        <tr><td>Sand</td><td>15 &ndash; 25%</td><td>20&deg;</td><td><span style="color:#d9cc80;">&#9608;</span> Tan</td></tr>
-                        <tr><td>Grass</td><td>25 &ndash; 55%</td><td>30&deg;</td><td><span style="color:#4db333;">&#9608;</span> Green</td></tr>
-                        <tr><td>Rock</td><td>55 &ndash; 80%</td><td>60&deg;</td><td><span style="color:#8c7366;">&#9608;</span> Brown</td></tr>
-                        <tr><td>Snow</td><td>80 &ndash; 100%</td><td>90&deg;</td><td><span style="color:#f2f2f7;">&#9608;</span> White</td></tr>
+                        <tr><td>Water</td><td>0 &ndash; 15%</td><td>90&deg;</td><td><span class="swatch" style="color:#3366cc;">&#9608;</span> Blue</td></tr>
+                        <tr><td>Sand</td><td>15 &ndash; 25%</td><td>20&deg;</td><td><span class="swatch" style="color:#d9cc80;">&#9608;</span> Tan</td></tr>
+                        <tr><td>Grass</td><td>25 &ndash; 55%</td><td>30&deg;</td><td><span class="swatch" style="color:#4db333;">&#9608;</span> Green</td></tr>
+                        <tr><td>Rock</td><td>55 &ndash; 80%</td><td>60&deg;</td><td><span class="swatch" style="color:#8c7366;">&#9608;</span> Brown</td></tr>
+                        <tr><td>Snow</td><td>80 &ndash; 100%</td><td>90&deg;</td><td><span class="swatch" style="color:#f2f2f7;">&#9608;</span> White</td></tr>
                     </tbody>
                 </table>
-                <p class="text-muted small mt-2">Click <strong>Generate Splatmap</strong> in the Splatmap tab to see a color-coded preview (toggle <strong>Splat</strong> in the toolbar to switch back to the heightmap). Generating a new heightmap clears the splatmap. <strong>Apply to Terrain</strong> writes it too: it is resampled to a power-of-two alphamap (513 &rarr; 512), the terrain's existing layers are kept, and any missing layers are created as solid-colour <code>TerrainLayer</code> assets in <code>Assets/OpenHeightmap Generated/TerrainLayers</code> (reused on later applies).</p>
+                <p class="text-muted small mt-2">Click <strong>Generate Splatmap</strong> in the Splatmap tab to see a color-coded preview (toggle <strong>Splat</strong> in the toolbar to switch back to the heightmap). Generating a new heightmap clears the splatmap. <strong>Apply to Terrain</strong> writes it too: it is resampled to a power-of-two alphamap (513 &rarr; 512), each splat rule gets a solid-colour <code>TerrainLayer</code> asset in <code>Assets/OpenHeightmap Generated/TerrainLayers</code> (reused on later applies). Applying again, for example after switching presets, swaps those generated layers for the current rules' colours. A layer you assigned yourself (such as a real texture) keeps its slot and is never replaced.</p>
             </section>
 
             <!-- Presets -->
@@ -615,6 +685,61 @@ HeightmapExporter.Export(heightmap, "/path/to/output.raw", ExportFormat.RAW16);<
             }
         });
     });
+</script>
+
+<script>
+    // Light / dark theme switch. The choice is remembered (shared by the OpenHeightmap and
+    // OpenStamper docs); without one, the page follows the system setting.
+    (function () {
+        var button = document.getElementById('themeToggle');
+        var media = window.matchMedia ? window.matchMedia('(prefers-color-scheme: light)') : null;
+
+        function currentTheme() {
+            return document.documentElement.getAttribute('data-bs-theme') === 'light' ? 'light' : 'dark';
+        }
+
+        function savedTheme() {
+            try {
+                return localStorage.getItem('openToolsDocsTheme');
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function applyTheme(theme) {
+            document.documentElement.setAttribute('data-bs-theme', theme);
+            var icon = button.querySelector('i');
+
+            // Show the theme the button switches to.
+            if (theme === 'light') {
+                icon.className = 'bi bi-moon-stars';
+            } else {
+                icon.className = 'bi bi-sun';
+            }
+        }
+
+        applyTheme(currentTheme());
+
+        button.addEventListener('click', function () {
+            var next = currentTheme() === 'light' ? 'dark' : 'light';
+            applyTheme(next);
+
+            try {
+                localStorage.setItem('openToolsDocsTheme', next);
+            } catch (e) {
+                // Storage blocked (some browsers, for local files): the switch still works for this visit.
+            }
+        });
+
+        if (media && media.addEventListener) {
+            media.addEventListener('change', function (e) {
+                // Follow the system only while the user hasn't picked a theme.
+                if (savedTheme() === null) {
+                    applyTheme(e.matches ? 'light' : 'dark');
+                }
+            });
+        }
+    })();
 </script>
 
 </body>
