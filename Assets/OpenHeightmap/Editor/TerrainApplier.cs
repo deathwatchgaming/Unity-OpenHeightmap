@@ -394,8 +394,11 @@ namespace OpenHeightmap
         }
 
         /// <summary>
-        /// Returns the terrain layers to use for a splatmap with splatLayers layers: the terrain's own
-        /// layers first, then a reused or newly created solid-colour layer asset for each missing one.
+        /// Returns the terrain layers to use for a splatmap with splatLayers layers, one per splat rule.
+        /// A slot keeps the terrain's existing layer only if it is the user's own (for example a real
+        /// texture they assigned). Solid-colour layers this tool generated earlier are always replaced
+        /// with the ones for the current rules, so switching presets also switches the colours.
+        /// User layers beyond the splatmap's layer count are kept (with zero weight).
         /// Does all asset creation, so call it before changing any TerrainData.
         /// </summary>
         private static List<TerrainLayer> PrepareLayers(
@@ -403,25 +406,22 @@ namespace OpenHeightmap
             IList<Color> layerColors, IList<string> layerNames)
         {
             var layers = new List<TerrainLayer>();
+            string layerFolder = $"{assetFolder}/TerrainLayers";
+            int existingCount = existingLayers != null ? existingLayers.Length : 0;
 
-            if (existingLayers != null)
+            for (int i = 0; i < splatLayers; i++)
             {
-                foreach (var existing in existingLayers)
+                TerrainLayer existing = i < existingCount ? existingLayers[i] : null;
+
+                if (existing != null && !IsGeneratedLayer(existing, layerFolder))
                 {
-                    if (existing != null)
-                    {
-                        layers.Add(existing);
-                    }
+                    // The user's own layer keeps its slot.
+                    layers.Add(existing);
                 }
-            }
 
-            if (layers.Count < splatLayers)
-            {
-                string layerFolder = $"{assetFolder}/TerrainLayers";
-                EnsureFolder(layerFolder);
-
-                for (int i = layers.Count; i < splatLayers; i++)
+                else
                 {
+                    EnsureFolder(layerFolder);
                     string layerName = layerNames != null && i < layerNames.Count && !string.IsNullOrEmpty(layerNames[i])
                         ? layerNames[i]
                         : $"Layer {i}";
@@ -430,7 +430,49 @@ namespace OpenHeightmap
                 }
             }
 
+            for (int i = splatLayers; i < existingCount; i++)
+            {
+                TerrainLayer extra = existingLayers[i];
+
+                if (extra != null && !IsGeneratedLayer(extra, layerFolder))
+                {
+                    layers.Add(extra);
+                }
+            }
+
             return layers;
+        }
+
+        /// <summary>True if the layer is a solid-colour layer this tool created (it lives in layerFolder).</summary>
+        private static bool IsGeneratedLayer(TerrainLayer layer, string layerFolder)
+        {
+            string path = AssetDatabase.GetAssetPath(layer);
+
+            if (string.IsNullOrEmpty(path))
+            {
+                return false;
+            }
+
+            return path.Replace('\\', '/').StartsWith(layerFolder + "/", StringComparison.OrdinalIgnoreCase);
+        }
+
+        /// <summary>True if both layer lists hold the same layers in the same order.</summary>
+        private static bool SameLayers(TerrainLayer[] current, List<TerrainLayer> wanted)
+        {
+            if (current == null || current.Length != wanted.Count)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < current.Length; i++)
+            {
+                if (current[i] != wanted[i])
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         /// <summary>
@@ -443,7 +485,9 @@ namespace OpenHeightmap
             int sh = splatmap.GetLength(1);
             int splatLayers = splatmap.GetLength(2);
 
-            if (layers != null && (terrainData.terrainLayers == null || terrainData.terrainLayers.Length != layers.Count))
+            // Compare layer by layer, not just the count: a preset with the same number of
+            // layers but different colours must still swap them in.
+            if (layers != null && !SameLayers(terrainData.terrainLayers, layers))
             {
                 terrainData.terrainLayers = layers.ToArray();
             }
