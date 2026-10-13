@@ -19,7 +19,7 @@ A free Unity editor tool for generating terrain heightmaps. Pick a preset or set
 
 ## Installation
 
-1. Download or clone this repository.
+1. Download or clone this [Repository](https://github.com/deathwatchgaming/Unity-OpenHeightmap).
 2. Copy the `Assets/OpenHeightmap` folder into your project's `Assets` folder.
 3. Open the tool from **Tools > OpenHeightmap** (Ctrl+Alt+H).
 
